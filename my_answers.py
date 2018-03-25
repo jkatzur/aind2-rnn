@@ -1,8 +1,7 @@
 import numpy as np
 import keras
 from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
+from keras.layers import Dense, Activation, LSTM
 
 
 # fill out the function below that transforms the input series 
@@ -17,7 +16,7 @@ def window_transform_series(series, window_size):
 
     # reshape each 
     X = np.asarray(X)
-    X.shape = (np.shape(X)[0:2])
+    X.shape = (np.shape(X)[0:window_size])
     y = np.asarray(y)
     y.shape = (len(y),1)
 
@@ -37,14 +36,13 @@ def cleaned_text(text):
 
 ### TODO: fill out the function below that transforms the input text and window-size into a set of input/output pairs for use with our RNN model
 def window_transform_text(text, window_size, step_size):
+    import math
     # containers for input/output pairs
     inputs = []
     outputs = []
-    steps = len(text) // window_size
-    for i in range(0, steps):
+    for i in range(0, int(math.ceil(float(len(text) - window_size) / step_size))):
         inputs.append(text[i*step_size:window_size+i*step_size])
         outputs.append(text[i*step_size+window_size])
-
     return inputs,outputs
 
 # TODO build the required RNN model: 
@@ -53,5 +51,5 @@ def build_part2_RNN(window_size, num_chars):
     model = Sequential()
     model.add(LSTM(units = 200, input_shape=(window_size,num_chars)))
     model.add(Dense(num_chars, activation='linear'))
-    model.add(Dense(num_chars, activation='softmax'))
+    model.add(Activation('softmax'))
     return model
